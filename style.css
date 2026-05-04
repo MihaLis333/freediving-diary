@@ -1,0 +1,146 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f7f6f2;
+  color: #222;
+}
+
+.app {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-header {
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.app-header p {
+  margin: 0;
+  color: #666;
+}
+
+.diary-card {
+  background: #fff;
+  border: 1px solid #ddd7cc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.diary-card h2 {
+  margin-top: 0;
+  font-size: 22px;
+}
+
+.training-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 15px;
+  color: #333;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cfc7ba;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  background: #fff;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  padding: 14px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #2f5f73;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #244b5b;
+}
+
+.trainings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.training-item {
+  border: 1px solid #ddd7cc;
+  border-radius: 10px;
+  padding: 14px;
+  background: #fffdf8;
+}
+
+.training-item h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.training-item p {
+  margin: 4px 0;
+  color: #444;
+}
+
+.empty-text {
+  color: #777;
+}
+
+.hidden {
+  display: none;
+}
+
+.secondary-button {
+  margin-top: 12px;
+  background: #f0eee8;
+  color: #222;
+  border: 1px solid #cfc7ba;
+}
+
+.secondary-button:hover {
+  background: #e4e0d6;
+}
+
+.training-details hr {
+  border: none;
+  border-top: 1px solid #ddd7cc;
+  margin: 16px 0;
+}
+
+.text-block {
+  white-space: pre-wrap;
+  padding: 12px;
+  border: 1px solid #ddd7cc;
+  border-radius: 8px;
+  background: #fffdf8;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}

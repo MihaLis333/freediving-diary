@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Дневник фридайвера</title>
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="app">
+        <header class="app-header">
+            <h1>Дневник фридайвера</h1>
+            <p>Цифровой дневник тренировок</p>
+        </header>
+
+        <main>
+            <section class="diary-card">
+                <h2>Новая тренировка</h2>
+
+                <form id="training-form" class="training-form">
+                    <label>
+                        Дата
+                        <input type="date" id="date" required />
+                    </label>
+
+                    <label>
+                        Тип тренировки
+                        <select id="type" required>
+                            <option value="">Выберите тип</option>
+                            <option value="pool">Бассейн</option>
+                            <option value="dry">Сухая</option>
+                            <option value="depth">Глубина</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Тренер
+                        <input type="text" id="coach" placeholder="Например: Алексей" />
+                    </label>
+
+                    <label>
+                        Самочувствие
+                        <select id="mood">
+                            <option value="good">🙂 Хорошее</option>
+                            <option value="normal">😐 Нормальное</option>
+                            <option value="bad">🙁 Плохое</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Тренировка
+                        <textarea id="training" rows="5"
+                            placeholder="Например: Разминка 400 м&#10;DYNB 4x50 м"></textarea>
+                    </label>
+
+                    <label>
+                        Ощущения / комментарии / питание
+                        <textarea id="notes" rows="4" placeholder="Самочувствие, питание, комментарии"></textarea>
+                    </label>
+
+                    <label>
+                        Общий объём
+                        <input type="text" id="total_volume" placeholder="Например: 1200 м" />
+                    </label>
+
+                    <label>
+                        Нырки
+                        <input type="text" id="dives" placeholder="Например: 12 попыток" />
+                    </label>
+
+                    <button type="submit">Сохранить тренировку</button>
+                </form>
+            </section>
+
+            <section class="diary-card">
+                <h2>Список тренировок</h2>
+
+                <div id="trainings-list" class="trainings-list">
+                    <p class="empty-text">Пока нет записей.</p>
+                </div>
+            </section>
+
+            <section id="training-details" class="diary-card training-details hidden">
+                <h2>Просмотр тренировки</h2>
+
+                <div id="training-details-content"></div>
+
+                <button id="close-details-button" type="button" class="secondary-button">
+                    Закрыть
+                </button>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
