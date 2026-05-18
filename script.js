@@ -11,7 +11,20 @@ let editingTrainingId = null;
 
 let trainings = [];
 
-function formatDateRu(dateString) {
+function escapeHTML(value) {
+  if (!value) {
+    return '';
+  }
+
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatDate(dateString) {
   if (!dateString) return '';
 
   const [year, month, day] = dateString.split('-');
@@ -62,6 +75,37 @@ function getMoodLabel(mood) {
   if (mood === 'bad') return '🙁 Плохое';
 
   return 'Не указано';
+}
+
+function escapeHTML(value) {
+  if (!value) {
+    return '';
+  }
+
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatDate(dateString) {
+  if (!dateString) {
+    return 'Дата не указана';
+  }
+
+  const parts = dateString.split('-');
+
+  if (parts.length !== 3) {
+    return dateString;
+  }
+
+  const year = parts[0];
+  const month = parts[1];
+  const day = parts[2];
+
+  return `${day}.${month}.${year}`;
 }
 
 function startEditTraining(trainingId) {
@@ -132,23 +176,23 @@ function openTrainingDetails(trainingId) {
   }
 
   trainingDetailsContent.innerHTML = `
-    <p><strong>Дата:</strong> ${formatDateRu(trainingItem.date)}</p>
+    <p><strong>Дата:</strong> ${formatDate(trainingItem.date)}</p>
     <p><strong>Тип тренировки:</strong> ${getTypeLabel(trainingItem.type)}</p>
-    <p><strong>Тренер:</strong> ${trainingItem.coach || 'Не указан'}</p>
+    <p><strong>Тренер:</strong> ${escapeHTML(trainingItem.coach) || 'Не указан'}</p>
     <p><strong>Самочувствие:</strong> ${getMoodLabel(trainingItem.mood)}</p>
 
     <hr>
 
     <p><strong>Тренировка:</strong></p>
-    <div class="text-block">${trainingItem.training || 'Не заполнено'}</div>
+    <div class="text-block">${escapeHTML(trainingItem.training) || 'Не заполнено'}</div>
 
     <p><strong>Ощущения / комментарии / питание:</strong></p>
-    <div class="text-block">${trainingItem.notes || 'Не заполнено'}</div>
+    <div class="text-block">${escapeHTML(trainingItem.notes) || 'Не заполнено'}</div>
 
     <hr>
 
-    <p><strong>Общий объём:</strong> ${trainingItem.total_volume || 'Не указан'}</p>
-    <p><strong>Нырки:</strong> ${trainingItem.dives || 'Не указано'}</p>
+    <p><strong>Общий объём:</strong> ${escapeHTML(trainingItem.total_volume) || 'Не указан'}</p>
+    <p><strong>Нырки:</strong> ${escapeHTML(trainingItem.dives) || 'Не указано'}</p>
   `;
 
   trainingDetails.classList.remove('hidden');
@@ -180,29 +224,29 @@ function renderTrainings() {
     item.className = 'training-item';
 
     item.innerHTML = `
-      <h3>${formatDateRu(trainingItem.date)} — ${getTypeLabel(trainingItem.type)}</h3>
-      <p><strong>Тренер:</strong> ${trainingItem.coach || 'Не указан'}</p>
+      <h3>${formatDate(trainingItem.date)} — ${getTypeLabel(trainingItem.type)}</h3>
+      <p><strong>Тренер:</strong> ${escapeHTML(trainingItem.coach) || 'Не указан'}</p>
       <p><strong>Самочувствие:</strong> ${getMoodLabel(trainingItem.mood)}</p>
-      <p><strong>Общий объём:</strong> ${trainingItem.total_volume || 'Не указан'}</p>
-      <p><strong>Нырки:</strong> ${trainingItem.dives || 'Не указано'}</p>
+      <p><strong>Общий объём:</strong> ${escapeHTML(trainingItem.total_volume) || 'Не указан'}</p>
+      <p><strong>Нырки:</strong> ${escapeHTML(trainingItem.dives) || 'Не указано'}</p>
 
       <div class="training-actions">
-        <button
-          type="button"
+        <button 
+          type="button" 
           class="secondary-button open-details-button"
         >
           Открыть
         </button>
 
-        <button
-          type="button"
+        <button 
+          type="button" 
           class="secondary-button edit-training-button"
         >
           Редактировать
         </button>
 
-        <button
-          type="button"
+        <button 
+          type="button" 
           class="danger-button delete-training-button"
         >
           Удалить
@@ -245,6 +289,26 @@ form.addEventListener('submit', function (event) {
     total_volume: document.getElementById('total_volume').value,
     dives: document.getElementById('dives').value
   };
+
+  if (!formData.date) {
+    alert('Укажите дату тренировки.');
+    return;
+  }
+
+  if (!formData.type) {
+    alert('Выберите тип тренировки.');
+    return;
+  }
+
+  if (!formData.training) {
+    alert('Заполните поле "Тренировка".');
+    return;
+  }
+
+  if (!formData.total_volume) {
+    alert('Укажите общий объём тренировки.');
+    return;
+  }
 
   if (editingTrainingId) {
     trainings = trainings.map(function (item) {
