@@ -11,26 +11,7 @@ let editingTrainingId = null;
 
 let trainings = [];
 
-function escapeHTML(value) {
-  if (!value) {
-    return '';
-  }
 
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-function formatDate(dateString) {
-  if (!dateString) return '';
-
-  const [year, month, day] = dateString.split('-');
-
-  return `${day}.${month}.${year}`;
-}
 
 function loadTrainings() {
   const savedTrainings = localStorage.getItem('freediving_trainings');
