@@ -144,3 +144,35 @@ button:hover {
   margin-bottom: 12px;
   line-height: 1.5;
 }
+
+.training-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.danger-button {
+  margin-top: 12px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  background: #fff2f0;
+  color: #8a1f11;
+  border: 1px solid #e0b4ad;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.danger-button:hover {
+  background: #f8ded9;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.form-actions button {
+  flex: 1;
+  min-width: 200px;
+}

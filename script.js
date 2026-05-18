@@ -4,7 +4,20 @@ const trainingDetails = document.getElementById('training-details');
 const trainingDetailsContent = document.getElementById('training-details-content');
 const closeDetailsButton = document.getElementById('close-details-button');
 
+const submitButton = document.getElementById('submit-button');
+const cancelEditButton = document.getElementById('cancel-edit-button');
+
+let editingTrainingId = null;
+
 let trainings = [];
+
+function formatDateRu(dateString) {
+  if (!dateString) return '';
+
+  const [year, month, day] = dateString.split('-');
+
+  return `${day}.${month}.${year}`;
+}
 
 function loadTrainings() {
   const savedTrainings = localStorage.getItem('freediving_trainings');
@@ -51,8 +64,65 @@ function getMoodLabel(mood) {
   return 'Не указано';
 }
 
+function startEditTraining(trainingId) {
+  const trainingItem = trainings.find(function (item) {
+    return item.id === trainingId;
+  });
+
+  if (!trainingItem) {
+    return;
+  }
+
+  editingTrainingId = trainingItem.id;
+
+  document.getElementById('date').value = trainingItem.date;
+  document.getElementById('type').value = trainingItem.type;
+  document.getElementById('coach').value = trainingItem.coach;
+  document.getElementById('mood').value = trainingItem.mood;
+  document.getElementById('training').value = trainingItem.training;
+  document.getElementById('notes').value = trainingItem.notes;
+  document.getElementById('total_volume').value = trainingItem.total_volume;
+  document.getElementById('dives').value = trainingItem.dives;
+
+  submitButton.textContent = 'Сохранить изменения';
+  cancelEditButton.classList.remove('hidden');
+
+  trainingDetails.classList.add('hidden');
+
+  form.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+}
+
+function cancelEditTraining() {
+  editingTrainingId = null;
+
+  form.reset();
+
+  submitButton.textContent = 'Сохранить тренировку';
+  cancelEditButton.classList.add('hidden');
+}
+
+function deleteTraining(trainingId) {
+  const isConfirmed = confirm('Удалить эту тренировку?');
+
+  if (!isConfirmed) {
+    return;
+  }
+
+  trainings = trainings.filter(function (item) {
+    return item.id !== trainingId;
+  });
+
+  saveTrainings();
+  renderTrainings();
+
+  trainingDetails.classList.add('hidden');
+}
+
 function openTrainingDetails(trainingId) {
-  const trainingItem = trainings.find(function(item) {
+  const trainingItem = trainings.find(function (item) {
     return item.id === trainingId;
   });
 
@@ -62,7 +132,7 @@ function openTrainingDetails(trainingId) {
   }
 
   trainingDetailsContent.innerHTML = `
-    <p><strong>Дата:</strong> ${trainingItem.date}</p>
+    <p><strong>Дата:</strong> ${formatDateRu(trainingItem.date)}</p>
     <p><strong>Тип тренировки:</strong> ${getTypeLabel(trainingItem.type)}</p>
     <p><strong>Тренер:</strong> ${trainingItem.coach || 'Не указан'}</p>
     <p><strong>Самочувствие:</strong> ${getMoodLabel(trainingItem.mood)}</p>
@@ -89,7 +159,15 @@ function openTrainingDetails(trainingId) {
   });
 }
 
+function sortTrainingsByDate() {
+  trainings.sort(function (a, b) {
+    return new Date(b.date) - new Date(a.date);
+  });
+}
+
 function renderTrainings() {
+  sortTrainingsByDate();
+
   trainingsList.innerHTML = '';
 
   if (trainings.length === 0) {
@@ -97,36 +175,64 @@ function renderTrainings() {
     return;
   }
 
-  trainings.forEach(function(trainingItem) {
+  trainings.forEach(function (trainingItem) {
     const item = document.createElement('div');
     item.className = 'training-item';
 
     item.innerHTML = `
-      <h3>${trainingItem.date} — ${getTypeLabel(trainingItem.type)}</h3>
+      <h3>${formatDateRu(trainingItem.date)} — ${getTypeLabel(trainingItem.type)}</h3>
       <p><strong>Тренер:</strong> ${trainingItem.coach || 'Не указан'}</p>
       <p><strong>Самочувствие:</strong> ${getMoodLabel(trainingItem.mood)}</p>
       <p><strong>Общий объём:</strong> ${trainingItem.total_volume || 'Не указан'}</p>
       <p><strong>Нырки:</strong> ${trainingItem.dives || 'Не указано'}</p>
 
-      <button 
-        type="button" 
-        class="secondary-button open-details-button"
-      >
-        Открыть
-      </button>
+      <div class="training-actions">
+        <button
+          type="button"
+          class="secondary-button open-details-button"
+        >
+          Открыть
+        </button>
+
+        <button
+          type="button"
+          class="secondary-button edit-training-button"
+        >
+          Редактировать
+        </button>
+
+        <button
+          type="button"
+          class="danger-button delete-training-button"
+        >
+          Удалить
+        </button>
+      </div>
     `;
 
     const openButton = item.querySelector('.open-details-button');
 
-    openButton.addEventListener('click', function() {
+    openButton.addEventListener('click', function () {
       openTrainingDetails(trainingItem.id);
+    });
+
+    const deleteButton = item.querySelector('.delete-training-button');
+
+    const editButton = item.querySelector('.edit-training-button');
+
+    editButton.addEventListener('click', function () {
+      startEditTraining(trainingItem.id);
+    });
+
+    deleteButton.addEventListener('click', function () {
+      deleteTraining(trainingItem.id);
     });
 
     trainingsList.appendChild(item);
   });
 }
 
-form.addEventListener('submit', function(event) {
+form.addEventListener('submit', function (event) {
   event.preventDefault();
 
   const formData = {
@@ -140,18 +246,47 @@ form.addEventListener('submit', function(event) {
     dives: document.getElementById('dives').value
   };
 
-  const newTraining = createTraining(formData);
+  if (editingTrainingId) {
+    trainings = trainings.map(function (item) {
+      if (item.id === editingTrainingId) {
+        return {
+          ...item,
+          date: formData.date,
+          type: formData.type,
+          coach: formData.coach,
+          mood: formData.mood,
+          training: formData.training,
+          notes: formData.notes,
+          total_volume: formData.total_volume,
+          dives: formData.dives,
+          updated_at: new Date().toISOString()
+        };
+      }
 
-  trainings.unshift(newTraining);
+      return item;
+    });
+
+    editingTrainingId = null;
+    submitButton.textContent = 'Сохранить тренировку';
+    cancelEditButton.classList.add('hidden');
+  } else {
+    const newTraining = createTraining(formData);
+    trainings.unshift(newTraining);
+  }
 
   saveTrainings();
   renderTrainings();
 
   form.reset();
+  trainingDetails.classList.add('hidden');
 });
 
-closeDetailsButton.addEventListener('click', function() {
+closeDetailsButton.addEventListener('click', function () {
   trainingDetails.classList.add('hidden');
+});
+
+cancelEditButton.addEventListener('click', function () {
+  cancelEditTraining();
 });
 
 loadTrainings();
