@@ -6,6 +6,7 @@ const closeDetailsButton = document.getElementById('close-details-button');
 
 const submitButton = document.getElementById('submit-button');
 const cancelEditButton = document.getElementById('cancel-edit-button');
+const formTitle = document.getElementById('form-title');
 
 let editingTrainingId = null;
 
@@ -110,6 +111,7 @@ function startEditTraining(trainingId) {
   document.getElementById('dives').value = trainingItem.dives;
 
   submitButton.textContent = 'Сохранить изменения';
+  formTitle.textContent = 'Редактирование тренировки';
   cancelEditButton.classList.remove('hidden');
 
   trainingDetails.classList.add('hidden');
@@ -126,6 +128,7 @@ function cancelEditTraining() {
   form.reset();
 
   submitButton.textContent = 'Сохранить тренировку';
+  formTitle.textContent = 'Новая тренировка';
   cancelEditButton.classList.add('hidden');
 }
 
@@ -313,6 +316,7 @@ form.addEventListener('submit', function (event) {
 
     editingTrainingId = null;
     submitButton.textContent = 'Сохранить тренировку';
+    formTitle.textContent = 'Новая тренировка';
     cancelEditButton.classList.add('hidden');
   } else {
     const newTraining = createTraining(formData);
