@@ -323,3 +323,52 @@ button:focus-visible {
     min-width: 0;
   }
 }
+
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+.password-field input {
+  padding-right: 52px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sea-dark);
+
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+
+  transform: translateY(-50%);
+  box-shadow: none;
+  transition: background 0.18s ease, opacity 0.18s ease;
+}
+
+.password-toggle:hover {
+  background: var(--sea-soft);
+  box-shadow: none;
+  transform: translateY(-50%);
+}
+
+.password-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47, 127, 134, 0.16);
+}

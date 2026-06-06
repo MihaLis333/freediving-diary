@@ -8,6 +8,19 @@ const submitButton = document.getElementById('submit-button');
 const cancelEditButton = document.getElementById('cancel-edit-button');
 const formTitle = document.getElementById('form-title');
 
+const authSection = document.getElementById('auth-section');
+const appSection = document.getElementById('app-section');
+const authEmail = document.getElementById('auth-email');
+const authPassword = document.getElementById('auth-password');
+const togglePasswordButton = document.getElementById('toggle-password');
+const loginButton = document.getElementById('login-button');
+const registerButton = document.getElementById('register-button');
+const logoutButton = document.getElementById('logout-button');
+const authMessage = document.getElementById('auth-message');
+const userEmail = document.getElementById('user-email');
+
+let currentUser = null;
+
 let editingTrainingId = null;
 
 let trainings = [];
@@ -24,6 +37,40 @@ function loadTrainings() {
 
 function saveTrainings() {
   localStorage.setItem('freediving_trainings', JSON.stringify(trainings));
+}
+
+function showAuthMessage(message) {
+  authMessage.textContent = message;
+}
+
+function showAuthScreen() {
+  authSection.classList.remove('hidden');
+  appSection.classList.add('hidden');
+  userEmail.textContent = '';
+}
+
+function showApp() {
+  authSection.classList.add('hidden');
+  appSection.classList.remove('hidden');
+
+  if (currentUser) {
+    userEmail.textContent = currentUser.email;
+  }
+}
+
+async function checkSession() {
+  const { data, error } = await supabaseClient.auth.getUser();
+
+  if (error || !data.user) {
+    currentUser = null;
+    showAuthScreen();
+    return;
+  }
+
+  currentUser = data.user;
+  showApp();
+  loadTrainings();
+  renderTrainings();
 }
 
 function createTraining(data) {
@@ -330,6 +377,96 @@ form.addEventListener('submit', function (event) {
   trainingDetails.classList.add('hidden');
 });
 
+togglePasswordButton.addEventListener('click', function () {
+  const isPasswordHidden = authPassword.type === 'password';
+
+  if (isPasswordHidden) {
+    authPassword.type = 'text';
+    togglePasswordButton.textContent = '🙈';
+    togglePasswordButton.setAttribute('aria-label', 'Скрыть пароль');
+    togglePasswordButton.setAttribute('aria-pressed', 'true');
+  } else {
+    authPassword.type = 'password';
+    togglePasswordButton.textContent = '👁';
+    togglePasswordButton.setAttribute('aria-label', 'Показать пароль');
+    togglePasswordButton.setAttribute('aria-pressed', 'false');
+  }
+});
+
+registerButton.addEventListener('click', async function () {
+  const email = authEmail.value.trim();
+  const password = authPassword.value.trim();
+
+  if (!email || !password) {
+    showAuthMessage('Введите email и пароль.');
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    console.error(error);
+    showAuthMessage(error.message);
+    return;
+  }
+
+  if (data.user && data.session) {
+    currentUser = data.user;
+    showAuthMessage('');
+    showApp();
+    loadTrainings();
+    renderTrainings();
+    return;
+  }
+
+  showAuthMessage('Регистрация создана. Теперь попробуйте войти.');
+});
+
+loginButton.addEventListener('click', async function () {
+  const email = authEmail.value.trim();
+  const password = authPassword.value.trim();
+
+  if (!email || !password) {
+    showAuthMessage('Введите email и пароль.');
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    console.error(error);
+    showAuthMessage(error.message);
+    return;
+  }
+
+  currentUser = data.user;
+  showAuthMessage('');
+  showApp();
+  loadTrainings();
+  renderTrainings();
+});
+
+logoutButton.addEventListener('click', async function () {
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    console.error(error);
+    alert('Не удалось выйти из аккаунта.');
+    return;
+  }
+
+  currentUser = null;
+  trainings = [];
+  renderTrainings();
+  showAuthScreen();
+});
+
 closeDetailsButton.addEventListener('click', function () {
   trainingDetails.classList.add('hidden');
 });
@@ -338,5 +475,4 @@ cancelEditButton.addEventListener('click', function () {
   cancelEditTraining();
 });
 
-loadTrainings();
-renderTrainings();
+checkSession();
