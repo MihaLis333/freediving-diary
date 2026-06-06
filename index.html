@@ -17,7 +17,33 @@
             <p>Цифровой дневник тренировок</p>
         </header>
 
-        <main>
+        <section id="auth-section" class="diary-card auth-section">
+            <h2>Вход в дневник</h2>
+
+            <label>
+                Email
+                <input type="email" id="auth-email" placeholder="example@mail.com" />
+            </label>
+
+            <label>
+                Пароль
+                <input type="password" id="auth-password" placeholder="Минимум 6 символов" />
+            </label>
+
+            <div class="form-actions">
+                <button type="button" id="login-button">Войти</button>
+                <button type="button" id="register-button" class="secondary-button">Зарегистрироваться</button>
+            </div>
+
+            <p id="auth-message" class="auth-message"></p>
+        </section>
+
+        <main id="app-section" class="hidden">
+            <div class="user-panel">
+                <span id="user-email"></span>
+                <button type="button" id="logout-button" class="secondary-button">Выйти</button>
+            </div>
+            
             <section class="diary-card">
                 <h2 id="form-title">Новая тренировка</h2>
 
@@ -53,7 +79,8 @@
 
                     <label>
                         Тренировка
-                        <textarea id="training" rows="5" required placeholder="Например: Разминка 400 м&#10;DYNB 4x50 м"></textarea>
+                        <textarea id="training" rows="5" required
+                            placeholder="Например: Разминка 400 м&#10;DYNB 4x50 м"></textarea>
                     </label>
 
                     <label>
@@ -103,6 +130,8 @@
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script src="script.js"></script>
 </body>
 
