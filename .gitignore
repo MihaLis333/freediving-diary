@@ -1,2 +1,14 @@
 .DS_Store
 .lh/
+
+.env
+.env.local
+.env.*.local
+
+*.pem
+*.key
+*.secret
+
+secrets/
+secret/
+passwords/
