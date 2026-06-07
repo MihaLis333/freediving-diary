@@ -27,16 +27,26 @@ let trainings = [];
 
 
 
-function loadTrainings() {
-  const savedTrainings = localStorage.getItem('freediving_trainings');
-
-  if (savedTrainings) {
-    trainings = JSON.parse(savedTrainings);
+async function loadTrainings() {
+  if (!currentUser) {
+    trainings = [];
+    return;
   }
-}
 
-function saveTrainings() {
-  localStorage.setItem('freediving_trainings', JSON.stringify(trainings));
+  const { data, error } = await supabaseClient
+    .from('trainings')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('date', { ascending: false });
+
+  if (error) {
+    console.error(error);
+    alert('Не удалось загрузить тренировки.');
+    trainings = [];
+    return;
+  }
+
+  trainings = data || [];
 }
 
 function showAuthMessage(message) {
@@ -69,24 +79,21 @@ async function checkSession() {
 
   currentUser = data.user;
   showApp();
-  loadTrainings();
+  await loadTrainings();
   renderTrainings();
 }
 
 function createTraining(data) {
   return {
-    id: crypto.randomUUID(),
-    user_id: null,
+    user_id: currentUser.id,
     date: data.date,
     type: data.type,
-    coach: data.coach,
-    mood: data.mood,
+    coach: data.coach || null,
+    mood: data.mood || null,
     training: data.training,
-    notes: data.notes,
+    notes: data.notes || null,
     total_volume: data.total_volume,
-    dives: data.dives,
-    created_at: new Date().toISOString(),
-    updated_at: null
+    dives: data.dives || null
   };
 }
 
@@ -179,18 +186,26 @@ function cancelEditTraining() {
   cancelEditButton.classList.add('hidden');
 }
 
-function deleteTraining(trainingId) {
+async function deleteTraining(trainingId) {
   const isConfirmed = confirm('Удалить эту тренировку?');
 
   if (!isConfirmed) {
     return;
   }
 
-  trainings = trainings.filter(function (item) {
-    return item.id !== trainingId;
-  });
+  const { error } = await supabaseClient
+    .from('trainings')
+    .delete()
+    .eq('id', trainingId)
+    .eq('user_id', currentUser.id);
 
-  saveTrainings();
+  if (error) {
+    console.error(error);
+    alert('Не удалось удалить тренировку.');
+    return;
+  }
+
+  await loadTrainings();
   renderTrainings();
 
   trainingDetails.classList.add('hidden');
@@ -307,8 +322,13 @@ function renderTrainings() {
   });
 }
 
-form.addEventListener('submit', function (event) {
+form.addEventListener('submit', async function (event) {
   event.preventDefault();
+
+  if (!currentUser) {
+    alert('Сначала войдите в аккаунт.');
+    return;
+  }
 
   const formData = {
     date: document.getElementById('date').value,
@@ -342,24 +362,27 @@ form.addEventListener('submit', function (event) {
   }
 
   if (editingTrainingId) {
-    trainings = trainings.map(function (item) {
-      if (item.id === editingTrainingId) {
-        return {
-          ...item,
-          date: formData.date,
-          type: formData.type,
-          coach: formData.coach,
-          mood: formData.mood,
-          training: formData.training,
-          notes: formData.notes,
-          total_volume: formData.total_volume,
-          dives: formData.dives,
-          updated_at: new Date().toISOString()
-        };
-      }
+    const { error } = await supabaseClient
+      .from('trainings')
+      .update({
+        date: formData.date,
+        type: formData.type,
+        coach: formData.coach || null,
+        mood: formData.mood || null,
+        training: formData.training,
+        notes: formData.notes || null,
+        total_volume: formData.total_volume,
+        dives: formData.dives || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', editingTrainingId)
+      .eq('user_id', currentUser.id);
 
-      return item;
-    });
+    if (error) {
+      console.error(error);
+      alert('Не удалось обновить тренировку.');
+      return;
+    }
 
     editingTrainingId = null;
     submitButton.textContent = 'Сохранить тренировку';
@@ -367,10 +390,19 @@ form.addEventListener('submit', function (event) {
     cancelEditButton.classList.add('hidden');
   } else {
     const newTraining = createTraining(formData);
-    trainings.unshift(newTraining);
+
+    const { error } = await supabaseClient
+      .from('trainings')
+      .insert(newTraining);
+
+    if (error) {
+      console.error(error);
+      alert('Не удалось сохранить тренировку.');
+      return;
+    }
   }
 
-  saveTrainings();
+  await loadTrainings();
   renderTrainings();
 
   form.reset();
@@ -417,7 +449,7 @@ registerButton.addEventListener('click', async function () {
     currentUser = data.user;
     showAuthMessage('');
     showApp();
-    loadTrainings();
+    await loadTrainings();
     renderTrainings();
     return;
   }
@@ -448,7 +480,7 @@ loginButton.addEventListener('click', async function () {
   currentUser = data.user;
   showAuthMessage('');
   showApp();
-  loadTrainings();
+  await loadTrainings();
   renderTrainings();
 });
 
